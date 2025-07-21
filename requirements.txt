@@ -4,3 +4,4 @@ wordcloud
 matplotlib
 PyPDF2
 openpyxl
+plotly
