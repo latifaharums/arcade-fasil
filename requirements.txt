@@ -1,1 +1,6 @@
 streamlit
+pandas
+wordcloud
+matplotlib
+PyPDF2
+openpyxl
