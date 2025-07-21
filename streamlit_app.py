@@ -33,26 +33,42 @@ if data_file is not None:
     else:
         df = pd.read_excel(data_file)
 
+    st.sidebar.subheader("🔍 Deteksi Kolom Otomatis")
+    # Mapping otomatis kolom berdasarkan dataset kamu
+    col_map = {
+        "Point": "# Jumlah Skill Badge yang Diselesaikan" if "# Jumlah Skill Badge yang Diselesaikan" in df.columns else None,
+        "Redeem": "Status Redeem Kode Akses" if "Status Redeem Kode Akses" in df.columns else None,
+        "Milestone": "Milestone yang Diselesaikan" if "Milestone yang Diselesaikan" in df.columns else None,
+        "Name": "Nama Peserta" if "Nama Peserta" in df.columns else None
+    }
+
+    # Opsi manual jika mapping otomatis gagal
+    st.sidebar.markdown("📌 Jika kolom tidak terdeteksi otomatis, pilih secara manual:")
+    point_col = st.sidebar.selectbox("Kolom Total Point", options=df.columns, index=df.columns.get_loc(col_map["Point"]) if col_map["Point"] else 0)
+    redeem_col = st.sidebar.selectbox("Kolom Redeem Status", options=df.columns, index=df.columns.get_loc(col_map["Redeem"]) if col_map["Redeem"] else 0)
+    milestone_col = st.sidebar.selectbox("Kolom Milestone", options=df.columns, index=df.columns.get_loc(col_map["Milestone"]) if col_map["Milestone"] else 0)
+    name_col = st.sidebar.selectbox("Kolom Nama Peserta", options=df.columns, index=df.columns.get_loc(col_map["Name"]) if col_map["Name"] else 0)
+
     # Total Perolehan
-    total_point = df["Total Point"].sum()
+    total_point = df[point_col].sum()
     total_peserta = df.shape[0]
-    sudah_redeem = df[df["Redeem Status"] == "Sudah"].shape[0]
-    sang_penguasa = df.sort_values(by="Total Point", ascending=False).iloc[0]
+    sudah_redeem = df[df[redeem_col].str.lower() == "sudah"].shape[0]
+    sang_penguasa = df.sort_values(by=point_col, ascending=False).iloc[0]
 
     # Layout 4 kolom statistik
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("💎 Total Perolehan", f"{total_point:,} Point")
     col2.metric("👥 Total Peserta", total_peserta)
     col3.metric("🎁 Sudah Redeem Credit", sudah_redeem)
-    col4.metric("👑 Sang Penguasa", sang_penguasa["Nama Peserta"])
+    col4.metric("👑 Sang Penguasa", sang_penguasa[name_col])
 
     # Milestone Chart
     st.subheader("📈 Laporan Pencapaian Milestone")
     fig = px.bar(
         df,
-        x="Nama Peserta",
-        y="Milestone (%)",
-        color="Milestone (%)",
+        x=name_col,
+        y=milestone_col,
+        color=milestone_col,
         color_continuous_scale="Viridis",
         title="Pencapaian Milestone Setiap Peserta"
     )
@@ -60,8 +76,8 @@ if data_file is not None:
 
     # Leaderboard
     st.subheader("🏆 Leaderboard (Top 5)")
-    leaderboard = df.sort_values(by="Total Point", ascending=False).head(5)
-    st.table(leaderboard[["Nama Peserta", "Total Point"]])
+    leaderboard = df.sort_values(by=point_col, ascending=False).head(5)
+    st.table(leaderboard[[name_col, point_col]])
 
 else:
     st.info("⬅️ Upload data peserta untuk melihat dashboard.")
