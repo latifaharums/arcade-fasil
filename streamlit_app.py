@@ -6,7 +6,7 @@ from PyPDF2 import PdfReader
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="Arclatori Pro",
+    page_title="Progress Arcade 2025 - Fasilitator Latifah Arum S",
     page_icon="📑",
     layout="wide",
     initial_sidebar_state="expanded"
